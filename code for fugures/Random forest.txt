@@ -1,4 +1,0 @@
-#The code of random forest was referred to the study by Jiang et al (https://doi.org/10.1002/imt2.40).
-
-#Code for random forest
-https://github.com/jsming1996/IBD_project
