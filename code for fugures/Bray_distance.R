@@ -1,0 +1,6 @@
+library(vegan)
+library(permute)
+library(lattice)
+all <- read.table("111.txt",header=T,row.names=1,sep="\t")   
+bray.dist<-vegdist(all,method="bray")    
+write.table(as.matrix(bray.dist),file="bray.txt",sep="\t",col.names=NA)
