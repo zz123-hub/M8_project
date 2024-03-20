@@ -1,0 +1,32 @@
+#for binning
+
+megahit --12 sequence.fq -m 100000000000 -t 24 -osequence --out-prefix sequence --min-contig-len 1500
+
+bowtie2-build sequence.contigs.fa sequence.contigs.index
+
+bowtie2 -p 24 -x A1.contigs.index -D 20 -R 3 -N 1 -L 20 -i S,1,0.50 -U sequence.fq.gz | samtools view -bS  | samtools sort -T PREFIX -@ 24 -o - > sequence.bam
+
+jgi_summarize_bam_contig_depths --outputDepth sequence.depth sequence.bam
+
+
+metabat2 -i sequence.contigs.fa -a sequence.depth -m 20000 --saveCls --unbinned --seed 2019 -o sequence_bin/sequence_bin
+
+dRep dereplicate drep_out/ -g ./*.fa -p 12
+
+#for abundance
+
+cat dereplicated_genomes/*.fa > all.fa
+
+bowtie2-build all.fa all.index
+
+bowtie2 -p 12 -x all.index -D 20 -R 3 -N 1 -L 20 -i S,1,0.50 -U sequence.fq | samtools view -bS  | samtools sort -T PREFIX -@ 24 -o - > sequence.outputPrefix.bam
+
+samtools index sequence.outputPrefix.bam
+
+samtools idxstats sequence.outputPrefix.bam | tee -a sequence.txt
+
+
+#for phylogenetic tree
+
+
+time gtdbtk infer --msa_file /mag_anotation/gtdbtk.bac120.user_msa.fasta --out_dir infer --cpus 8
